@@ -95,6 +95,32 @@ body {
     min-height: calc(100vh - 76px);
 }
 
+.app-footer {
+    margin-top: 0.6rem;
+    padding: 0.58rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: rgba(10, 15, 24, 0.86);
+}
+
+.app-footer p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-align: center;
+}
+
+.app-footer a {
+    color: #b9dbff;
+    text-decoration: none;
+    border-bottom: 1px dotted rgba(185, 219, 255, 0.45);
+}
+
+.app-footer a:hover {
+    color: #e5f4ff;
+    border-bottom-color: rgba(229, 244, 255, 0.8);
+}
+
 .panel {
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
