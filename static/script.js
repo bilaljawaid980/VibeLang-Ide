@@ -3,6 +3,9 @@ const runBtn = document.getElementById("run-btn");
 const compileIndicatorEl = document.getElementById("compile-indicator");
 const terminalOutputEl = document.getElementById("terminal-output");
 const terminalTabs = document.querySelectorAll(".term-tab");
+const docsTabs = document.querySelectorAll(".docs-tab");
+const docPanes = document.querySelectorAll(".doc-pane");
+const insertDocSnippetButtons = document.querySelectorAll(".insert-doc-snippet");
 
 const fileListEl = document.getElementById("file-list");
 const newFileNameEl = document.getElementById("new-file-name");
@@ -12,7 +15,9 @@ const activeFileNameEl = document.getElementById("active-file-name");
 const aiTabs = document.querySelectorAll(".ai-tab");
 const aiPanes = document.querySelectorAll(".ai-pane");
 const aiOutputEl = document.getElementById("ai-output");
+const aiStatusEl = document.getElementById("ai-status");
 const promptEl = document.getElementById("prompt-text");
+const promptChips = document.querySelectorAll(".prompt-chip");
 
 const explainCodeBtn = document.getElementById("explain-code-btn");
 const explainErrorBtn = document.getElementById("explain-error-btn");
@@ -54,6 +59,35 @@ aiTabs.forEach((tab) => {
     });
 });
 
+docsTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+        const selected = tab.dataset.doc;
+        docsTabs.forEach((item) => item.classList.remove("active"));
+        docPanes.forEach((pane) => pane.classList.remove("active"));
+        tab.classList.add("active");
+        document.querySelector(`[data-doc-pane="${selected}"]`)?.classList.add("active");
+    });
+});
+
+insertDocSnippetButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+        const snippet = button.dataset.snippet || "";
+        sourceCodeEl.value = snippet;
+        persistCurrentFile();
+        sourceCodeEl.focus();
+        terminalOutputEl.textContent = "[DOCS]\nSnippet inserted into active file.";
+    });
+});
+
+promptChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+        const promptText = chip.dataset.prompt || "";
+        promptEl.value = promptText;
+        promptEl.focus();
+        setAiStatus("Prompt loaded. Click Generate VibeLang Code.", "");
+    });
+});
+
 explainCodeBtn.addEventListener("click", explainCode);
 explainErrorBtn.addEventListener("click", explainError);
 suggestFixBtn.addEventListener("click", suggestFix);
@@ -78,92 +112,141 @@ async function compileSource() {
 }
 
 async function explainCode() {
-    const compileResult = await postJson("/compile", { source_code: sourceCodeEl.value });
+    setAiStatus("Analyzing code...", "");
+    const compileResult = await postJson("/compile", { source_code: sourceCodeEl.value }, { reportToTerminal: false });
     if (!compileResult) {
+        aiOutputEl.textContent = explainCodeFallback(sourceCodeEl.value, []);
+        setAiStatus("AI request failed, fallback explanation shown.", "err");
         return;
     }
 
     if (!compileResult.success) {
         aiOutputEl.textContent = "Run successful code first, then ask for explanation.";
+        setAiStatus("Compilation must succeed before explanation.", "err");
         return;
     }
 
-    if (!ensureAiEnabled()) {
+    if (!aiEnabled) {
+        aiOutputEl.textContent = explainCodeFallback(sourceCodeEl.value, compileResult.tac || []);
+        setAiStatus("AI key not configured. Fallback explanation shown.", "err");
         return;
     }
 
     const result = await postJson("/ai/explain-code", {
         source_code: sourceCodeEl.value,
         tac: compileResult.tac,
-    });
+    }, { reportToTerminal: false });
     if (result?.success) {
         aiOutputEl.textContent = result.text;
+        setAiStatus("Explanation generated successfully.", "ok");
+    } else {
+        aiOutputEl.textContent = explainCodeFallback(sourceCodeEl.value, compileResult.tac || []);
+        setAiStatus("AI response unavailable. Fallback explanation shown.", "err");
     }
 }
 
 async function explainError() {
-    const compileResult = await postJson("/compile", { source_code: sourceCodeEl.value });
+    setAiStatus("Checking for errors...", "");
+    const compileResult = await postJson("/compile", { source_code: sourceCodeEl.value }, { reportToTerminal: false });
     if (!compileResult) {
+        setAiStatus("Could not compile source for error explanation.", "err");
         return;
     }
 
     if (compileResult.success) {
         aiOutputEl.textContent = "No errors found. Run code with an issue to explain an error.";
-        return;
-    }
-
-    if (!ensureAiEnabled()) {
+        setAiStatus("No error present to explain.", "");
         return;
     }
 
     const [firstError] = compileResult.errors || [];
+    if (!firstError) {
+        aiOutputEl.textContent = "Compilation failed, but no structured error details were returned.";
+        setAiStatus("No error details available.", "err");
+        return;
+    }
+
+    if (!aiEnabled) {
+        aiOutputEl.textContent = explainErrorFallback(firstError);
+        setAiStatus("AI key not configured. Fallback error help shown.", "err");
+        return;
+    }
+
     const result = await postJson("/ai/explain-error", {
         source_code: sourceCodeEl.value,
         error: firstError,
-    });
+    }, { reportToTerminal: false });
     if (result?.success) {
         aiOutputEl.textContent = result.text;
+        setAiStatus("Error explanation generated.", "ok");
+    } else {
+        aiOutputEl.textContent = explainErrorFallback(firstError);
+        setAiStatus("AI response unavailable. Fallback error help shown.", "err");
     }
 }
 
 async function suggestFix() {
-    const compileResult = await postJson("/compile", { source_code: sourceCodeEl.value });
+    setAiStatus("Preparing fix suggestions...", "");
+    const compileResult = await postJson("/compile", { source_code: sourceCodeEl.value }, { reportToTerminal: false });
     if (!compileResult) {
+        setAiStatus("Could not compile source for fix suggestions.", "err");
         return;
     }
 
     if (compileResult.success) {
         aiOutputEl.textContent = "No errors found. Nothing to fix right now.";
+        setAiStatus("No fixes needed.", "ok");
         return;
     }
 
-    if (!ensureAiEnabled()) {
+    if (!aiEnabled) {
+        aiOutputEl.textContent = suggestFixFallback(sourceCodeEl.value, compileResult.errors || []);
+        setAiStatus("AI key not configured. Fallback fix suggestions shown.", "err");
         return;
     }
 
     const result = await postJson("/ai/suggest-fix", {
         source_code: sourceCodeEl.value,
         errors: compileResult.errors || [],
-    });
+    }, { reportToTerminal: false });
     if (result?.success) {
         aiOutputEl.textContent = result.text;
+        setAiStatus("Fix suggestions generated.", "ok");
+    } else {
+        aiOutputEl.textContent = suggestFixFallback(sourceCodeEl.value, compileResult.errors || []);
+        setAiStatus("AI response unavailable. Fallback fix suggestions shown.", "err");
     }
 }
 
 async function generateCode() {
-    if (!ensureAiEnabled()) {
-        return;
-    }
     const prompt = promptEl.value.trim();
     if (!prompt) {
         aiOutputEl.textContent = "Describe what code you want to generate first.";
+        setAiStatus("Prompt required for code generation.", "err");
         return;
     }
-    const result = await postJson("/ai/generate-code", { prompt });
+
+    setAiStatus("Generating VibeLang code...", "");
+
+    if (!aiEnabled) {
+        sourceCodeEl.value = generateCodeFallback(prompt);
+        persistCurrentFile();
+        aiOutputEl.textContent = "AI key not configured. Generated code using local template fallback.";
+        setAiStatus("Fallback code generated.", "err");
+        return;
+    }
+
+    const result = await postJson("/ai/generate-code", { prompt }, { reportToTerminal: false });
     if (result?.success) {
         sourceCodeEl.value = result.text;
         persistCurrentFile();
         aiOutputEl.textContent = "Generated code inserted into current file.";
+        setAiStatus("Code generated successfully.", "ok");
+    } else {
+        sourceCodeEl.value = generateCodeFallback(prompt);
+        persistCurrentFile();
+        aiOutputEl.textContent = "AI request failed. Generated code using local template fallback.";
+        setAiStatus("AI unavailable. Fallback code generated.", "err");
     }
 }
 
@@ -301,7 +384,8 @@ function setCompileIndicator(text, stateClass) {
     }
 }
 
-async function postJson(url, payload) {
+async function postJson(url, payload, options = {}) {
+    const { reportToTerminal = true } = options;
     try {
         const response = await fetch(url, {
             method: "POST",
@@ -314,9 +398,103 @@ async function postJson(url, payload) {
         }
         return data;
     } catch (error) {
-        terminalOutputEl.textContent = `[REQUEST ERROR]\n${error.message}`;
+        if (reportToTerminal) {
+            terminalOutputEl.textContent = `[REQUEST ERROR]\n${error.message}`;
+        }
         return null;
     }
+}
+
+function setAiStatus(message, stateClass) {
+    if (!aiStatusEl) {
+        return;
+    }
+    aiStatusEl.textContent = message;
+    aiStatusEl.classList.remove("ok", "err");
+    if (stateClass) {
+        aiStatusEl.classList.add(stateClass);
+    }
+}
+
+function explainCodeFallback(sourceCode, tac) {
+    const lower = sourceCode.toLowerCase();
+    const parts = [];
+    if (lower.includes("declare variable")) {
+        parts.push("This program declares one or more numeric variables.");
+    }
+    if (lower.includes("while ")) {
+        parts.push("It uses a while loop to repeat statements while the condition remains true.");
+    }
+    if (lower.includes("if ")) {
+        parts.push("It contains conditional logic using if/else.");
+    }
+    if (lower.includes("print ")) {
+        parts.push("It prints values as runtime output.");
+    }
+    if (tac.length) {
+        parts.push(`Compiler generated ${tac.length} TAC instructions for execution flow.`);
+    }
+    if (!parts.length) {
+        parts.push("This program appears to contain simple statements. Run it to inspect result and TAC.");
+    }
+    return parts.join("\n");
+}
+
+function explainErrorFallback(error) {
+    const location = `line ${error.line}, column ${error.column}`;
+    const hint = error.hint ? `\nHint: ${error.hint}` : "";
+    return `Error Type: ${error.type}\nLocation: ${location}\nMessage: ${error.message}${hint}`;
+}
+
+function suggestFixFallback(sourceCode, errors) {
+    if (!errors.length) {
+        return "No compiler errors were provided.";
+    }
+    const first = errors[0];
+    const tips = [
+        `Primary issue: ${first.message}`,
+        `Location: line ${first.line}, column ${first.column}`,
+        first.hint ? `Hint: ${first.hint}` : "Hint: Ensure declarations and semicolons are correct.",
+        "Review this source and fix the highlighted statement:",
+        sourceCode,
+    ];
+    return tips.join("\n");
+}
+
+function generateCodeFallback(prompt) {
+    const lower = prompt.toLowerCase();
+    const range = lower.match(/from\s+(\d+)\s+to\s+(\d+)/);
+    if (range) {
+        const start = Number(range[1]);
+        const end = Number(range[2]);
+        return [
+            `declare variable counter = ${start};`,
+            `declare variable limit = ${end};`,
+            "while counter is less than or equal to limit do",
+            "    print counter;",
+            "    counter = counter + 1;",
+            "end while;",
+        ].join("\n");
+    }
+
+    if (lower.includes("pass") && lower.includes("fail")) {
+        return [
+            "declare variable marks = 60;",
+            "if marks is greater than 50 then",
+            "    print \"pass\";",
+            "else",
+            "    print \"fail\";",
+            "end if;",
+        ].join("\n");
+    }
+
+    return [
+        "declare variable a = 10;",
+        "declare variable b = 20;",
+        "declare variable total;",
+        "total = a + b;",
+        "print total;",
+    ].join("\n");
 }
 
 function formatErrors(errors) {

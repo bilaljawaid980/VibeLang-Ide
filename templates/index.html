@@ -28,6 +28,70 @@
                     <button id="create-file-btn" class="secondary">Create</button>
                 </div>
                 <ul id="file-list" class="file-list" aria-label="Files"></ul>
+
+                <section class="docs-block" aria-label="VibeLang syntax docs">
+                    <div class="docs-head">
+                        <h3>VibeLang Docs</h3>
+                    </div>
+                    <div class="docs-tabs">
+                        <button class="docs-tab active" type="button" data-doc="basics">Basics</button>
+                        <button class="docs-tab" type="button" data-doc="control">Control</button>
+                        <button class="docs-tab" type="button" data-doc="ops">Operators</button>
+                        <button class="docs-tab" type="button" data-doc="mistakes">Mistakes</button>
+                    </div>
+
+                    <article class="doc-pane active" data-doc-pane="basics">
+                        <p class="doc-title">Program Basics</p>
+                        <ul>
+                            <li>End every statement with semicolon.</li>
+                            <li>Declare variable before using it.</li>
+                            <li>Use print for output.</li>
+                        </ul>
+                        <pre>declare variable marks = 75;
+print marks;</pre>
+                        <button class="insert-doc-snippet" type="button" data-snippet="declare variable marks = 75;&#10;print marks;">Insert Snippet</button>
+                    </article>
+
+                    <article class="doc-pane" data-doc-pane="control">
+                        <p class="doc-title">Control Flow</p>
+                        <pre>if marks is greater than 50 then
+    print "pass";
+else
+    print "fail";
+end if;</pre>
+                        <pre>declare variable i = 1;
+while i is less than or equal to 3 do
+    print i;
+    i = i + 1;
+end while;</pre>
+                        <button class="insert-doc-snippet" type="button" data-snippet="declare variable i = 1;&#10;while i is less than or equal to 3 do&#10;    print i;&#10;    i = i + 1;&#10;end while;">Insert Snippet</button>
+                    </article>
+
+                    <article class="doc-pane" data-doc-pane="ops">
+                        <p class="doc-title">Supported Operators</p>
+                        <ul>
+                            <li>Math: +, -, *, /</li>
+                            <li>Compare: is less than, is greater than</li>
+                            <li>Compare: is equal to, is not equal to</li>
+                            <li>Compare: is less than or equal to</li>
+                        </ul>
+                        <pre>declare variable total;
+total = 10 + 5 * 2;
+print total;</pre>
+                        <button class="insert-doc-snippet" type="button" data-snippet="declare variable total;&#10;total = 10 + 5 * 2;&#10;print total;">Insert Snippet</button>
+                    </article>
+
+                    <article class="doc-pane" data-doc-pane="mistakes">
+                        <p class="doc-title">Common Mistakes</p>
+                        <ul>
+                            <li>Missing semicolon at line end.</li>
+                            <li>Using undeclared variable.</li>
+                            <li>Forgetting end if; or end while;</li>
+                            <li>Invalid English comparison phrase.</li>
+                        </ul>
+                        <p class="doc-tip">Tip: Run code and inspect Errors tab in Terminal for exact line and hint.</p>
+                    </article>
+                </section>
             </aside>
 
             <section class="editor-stack">
@@ -72,6 +136,7 @@ end if;</textarea>
                 <div class="section-head">
                     <h2>AI Assistant</h2>
                 </div>
+                <p id="ai-status" class="ai-status">Ready to assist.</p>
                 <div class="ai-tabs">
                     <button class="ai-tab active" data-ai-tab="explain">Explanation</button>
                     <button class="ai-tab" data-ai-tab="generate">Code Generator</button>
@@ -88,6 +153,11 @@ end if;</textarea>
 
                 <div class="ai-pane" data-ai-pane="generate">
                     <label for="prompt-text">Describe the code you want:</label>
+                    <div class="prompt-ideas" aria-label="Prompt examples">
+                        <button type="button" class="prompt-chip" data-prompt="Declare a counter from 1 to 10 and print each value.">Counter Loop</button>
+                        <button type="button" class="prompt-chip" data-prompt="Declare marks and print pass if marks are greater than 50 otherwise print fail.">Pass/Fail If Else</button>
+                        <button type="button" class="prompt-chip" data-prompt="Declare two variables a and b, compute sum = a + b * 2, and print sum.">Arithmetic Program</button>
+                    </div>
                     <textarea id="prompt-text" spellcheck="false" placeholder="Example: declare a counter from 1 to 10 and print only even numbers"></textarea>
                     <button id="generate-btn">Generate VibeLang Code</button>
                 </div>
