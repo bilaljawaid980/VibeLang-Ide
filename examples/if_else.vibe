@@ -1,0 +1,6 @@
+declare variable marks = 75;
+if marks is greater than or equal to 50 then
+    print "pass";
+else
+    print "fail";
+end if;

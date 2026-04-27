@@ -1,0 +1,6 @@
+declare variable counter = 1;
+declare variable limit = 5;
+while counter is less than or equal to limit do
+    print counter;
+    counter = counter + 1;
+end while;

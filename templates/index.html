@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Assisted VibeLang Compiler</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-ai-enabled="{{ 'true' if ai_enabled else 'false' }}">
+    <main class="ide-shell">
+        <header class="topbar">
+            <div class="window-controls" aria-hidden="true">
+                <span class="dot dot-close"></span>
+                <span class="dot dot-min"></span>
+                <span class="dot dot-max"></span>
+            </div>
+            <p class="topbar-title">Compiler Construction | VibeLang IDE</p>
+            <p class="topbar-model">{% if ai_enabled %}AI: {{ ai_model }}{% else %}AI: Disabled{% endif %}</p>
+        </header>
+
+        <section class="workbench">
+            <aside class="sidebar panel">
+                <div class="section-head">
+                    <h2>Explorer</h2>
+                </div>
+                <div class="new-file-row">
+                    <input id="new-file-name" type="text" placeholder="new_file.vibe" aria-label="New file name">
+                    <button id="create-file-btn" class="secondary">Create</button>
+                </div>
+                <ul id="file-list" class="file-list" aria-label="Files"></ul>
+            </aside>
+
+            <section class="editor-stack">
+                <div class="editor panel">
+                    <div class="editor-toolbar">
+                        <div class="active-file-wrap">
+                            <span class="dot-file"></span>
+                            <strong id="active-file-name">main.vibe</strong>
+                        </div>
+                        <div class="toolbar-actions">
+                            <button id="run-btn">Run</button>
+                            <span class="live-indicator" id="compile-indicator">Idle</span>
+                        </div>
+                    </div>
+                    <textarea id="source-code" spellcheck="false">declare variable counter = 1;
+declare variable limit = 5;
+while counter is less than or equal to limit do
+    print counter;
+    counter = counter + 1;
+end while;
+if counter is greater than limit then
+    print "done";
+end if;</textarea>
+                </div>
+
+                <div class="terminal panel">
+                    <div class="terminal-toolbar">
+                        <h3>Terminal</h3>
+                        <div class="terminal-tabs">
+                            <button class="term-tab active" data-view="all">All</button>
+                            <button class="term-tab" data-view="result">Result</button>
+                            <button class="term-tab" data-view="errors">Errors</button>
+                            <button class="term-tab" data-view="tokens">Tokens</button>
+                            <button class="term-tab" data-view="tac">TAC</button>
+                        </div>
+                    </div>
+                    <pre id="terminal-output">Click Run to compile and execute.</pre>
+                </div>
+            </section>
+
+            <aside class="ai-panel panel">
+                <div class="section-head">
+                    <h2>AI Assistant</h2>
+                </div>
+                <div class="ai-tabs">
+                    <button class="ai-tab active" data-ai-tab="explain">Explanation</button>
+                    <button class="ai-tab" data-ai-tab="generate">Code Generator</button>
+                </div>
+
+                <div class="ai-pane active" data-ai-pane="explain">
+                    <div class="ai-actions">
+                        <button id="explain-code-btn" class="secondary">Explain Code</button>
+                        <button id="explain-error-btn" class="secondary">Explain Error</button>
+                        <button id="suggest-fix-btn" class="secondary">Suggest Fix</button>
+                    </div>
+                    <pre id="ai-output">{% if ai_enabled %}Ask AI to explain your code, errors, or suggest fixes.{% else %}AI is disabled until AI_GATEWAY_API_KEY is set in .env.{% endif %}</pre>
+                </div>
+
+                <div class="ai-pane" data-ai-pane="generate">
+                    <label for="prompt-text">Describe the code you want:</label>
+                    <textarea id="prompt-text" spellcheck="false" placeholder="Example: declare a counter from 1 to 10 and print only even numbers"></textarea>
+                    <button id="generate-btn">Generate VibeLang Code</button>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
