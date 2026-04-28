@@ -19,6 +19,11 @@ def index():
     return render_template("index.html", ai_enabled=assistant.is_configured(), ai_model=os.getenv("AI_MODEL", "openai/gpt-4.1-nano"))
 
 
+@app.get("/guide")
+def guide():
+    return render_template("guide.html")
+
+
 @app.get("/health")
 def health_route():
     return jsonify(

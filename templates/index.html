@@ -15,7 +15,10 @@
                 <span class="dot dot-max"></span>
             </div>
             <p class="topbar-title">Compiler Construction | VibeLang IDE</p>
-            <p class="topbar-model">{% if ai_enabled %}AI: {{ ai_model }}{% else %}AI: Disabled{% endif %}</p>
+            <div class="topbar-nav">
+                <a href="/guide" class="guide-link" title="Open VibeLang Documentation">📚 Guide</a>
+                <p class="topbar-model">{% if ai_enabled %}AI: {{ ai_model }}{% else %}AI: Disabled{% endif %}</p>
+            </div>
         </header>
 
         <section class="workbench">

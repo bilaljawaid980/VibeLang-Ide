@@ -87,6 +87,31 @@ body {
     color: var(--muted);
 }
 
+.topbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.guide-link {
+    color: #b9dbff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(185, 219, 255, 0.3);
+    transition: all 0.2s ease;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+}
+
+.guide-link:hover {
+    background: rgba(76, 197, 255, 0.15);
+    color: #4cc5ff;
+    border-color: #4cc5ff;
+    transform: translateY(-1px);
+}
+
 .workbench {
     margin-top: 0.55rem;
     display: grid;
