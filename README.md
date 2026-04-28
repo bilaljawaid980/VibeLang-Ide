@@ -4,9 +4,9 @@ An educational compiler project for **VibeLang**, a beginner-friendly English-li
 
 ## Features
 
-- Rule-based VibeLang compiler pipeline
+- VibeLang v2 compiler pipeline with strings, functions, returns, and function calls
 - Beginner-friendly errors with line and column information
-- Three-address code generation for arithmetic, `if`, `if-else`, and `while`
+- Three-address code generation for arithmetic, strings, `if`, `if-else`, `while`, and functions
 - Web UI for source input and compiler output
 - Optional AI help for explaining code, suggesting fixes, and generating VibeLang from English
 - Example `.vibe` programs and `pytest` coverage for core phases
@@ -32,6 +32,14 @@ while counter is less than or equal to 5 do
     print counter;
     counter = counter + 1;
 end while;
+```
+
+```vibelang
+function greet(name) then
+    return "Hello, " + name;
+end function;
+
+print greet("Ali");
 ```
 
 ## Folder Structure
@@ -113,9 +121,9 @@ sum = t2
 ## Compiler Phases
 
 1. Lexer turns source code into tokens.
-2. Parser builds an AST for declarations, assignments, print statements, conditionals, and loops.
-3. Semantic analysis validates declarations and numeric expression rules.
-4. TAC generation emits three-address code using temporary variables and labels.
+2. Parser builds an AST for declarations, assignments, print statements, conditionals, loops, and functions.
+3. Semantic analysis validates variables, strings, function calls, and return rules.
+4. TAC generation emits three-address code using temporary variables, labels, calls, and returns.
 
 ## Testing
 

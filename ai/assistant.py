@@ -13,9 +13,12 @@ Only use supported VibeLang syntax.
 Rules:
 - Statements end with semicolons.
 - Use declare variable, print, if ... then ... end if;, while ... do ... end while;
+- Functions are supported with: function name(param1, param2) then ... return value; ... end function;
+- Function calls are expressions like: total = add(2, 3);
+- Strings are supported in variables, print statements, returns, and + concatenation.
 - For declarations with values, use exactly: declare variable name = expression;
 - Never use phrases like 'declare x as 5;' or any syntax outside the compiler grammar.
-- Do not invent arrays, functions, booleans, objects, or unsupported features.
+- Do not invent arrays, objects, classes, or unsupported features.
 - Keep explanations beginner-friendly and concise.
 """
 

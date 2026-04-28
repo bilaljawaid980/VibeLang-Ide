@@ -1,40 +1,40 @@
-# VibeLang Language Guide
+# VibeLang v2 Language Guide
 
-This guide explains the practical syntax of VibeLang so you can write programs correctly before compiling.
+VibeLang v2 is the expanded version of the language used in this project. It now supports strings, function definitions, function calls, and return values, while keeping the English-like syntax easy to read.
 
 ## 1) Program Basics
 
-- VibeLang is an English-like language.
-- Every statement should end with `;`.
-- Variables should be declared before they are used.
+- Every statement ends with `;`.
+- Declare variables before using them.
+- Functions are defined at the top level.
+- Use `print` to show values.
 
-## 2) Variable Declaration
+## 2) Variables
 
-Declare and optionally initialize a variable:
+Declare a variable with or without an initial value:
 
 ```vibelang
 declare variable marks = 75;
-declare variable total;
+declare variable message;
 ```
 
-## 3) Assignment
-
-Assign a value or expression to a variable:
+Assign later:
 
 ```vibelang
-total = marks + 10;
+message = "Ready";
 ```
 
-## 4) Print Statement
+## 3) Strings
 
-Print numbers, variables, or text:
+Strings are written in double quotes and can be stored in variables, printed, returned, and joined with `+`.
 
 ```vibelang
-print total;
-print "hello";
+declare variable title = "Vibe";
+title = title + "Lang";
+print title;
 ```
 
-## 5) Arithmetic
+## 4) Arithmetic
 
 Supported arithmetic operators:
 
@@ -53,7 +53,7 @@ c = a + b * 2;
 print c;
 ```
 
-## 6) Conditions
+## 5) Conditions
 
 VibeLang conditions are written in English-like form.
 
@@ -76,7 +76,7 @@ else
 end if;
 ```
 
-## 7) While Loop
+## 6) While Loop
 
 Use loops with `while ... do ... end while;`:
 
@@ -88,30 +88,65 @@ while counter is less than or equal to 5 do
 end while;
 ```
 
+## 7) Functions
+
+Define reusable code blocks using `function ... then ... end function;`.
+
+Syntax:
+
+```vibelang
+function greet(name) then
+    return "Hello, " + name;
+end function;
+```
+
+Call the function like any expression:
+
+```vibelang
+declare variable message = greet("Ali");
+print message;
+```
+
+Rules:
+
+- Function names must be valid identifiers.
+- Parameters are comma-separated.
+- Every function must return a value.
+- `return` can return a number or a string.
+
 ## 8) Full Example Program
 
 ```vibelang
+function add(a, b) then
+    return a + b;
+end function;
+
 declare variable counter = 1;
 declare variable limit = 5;
+declare variable total = add(counter, limit);
+
 while counter is less than or equal to limit do
     print counter;
     counter = counter + 1;
 end while;
-if counter is greater than limit then
+
+if total is greater than 0 then
     print "done";
 end if;
 ```
 
 ## 9) Common Mistakes
 
-- Missing semicolon at the end of a statement
-- Using a variable before declaration
-- Forgetting `end if;` or `end while;`
-- Using unsupported phrasing in conditions
+- Missing semicolon at the end of a statement.
+- Using a variable before declaration or initialization.
+- Forgetting `end if;`, `end while;`, or `end function;`.
+- Using a function without the right number of arguments.
+- Returning no value from a function.
 
 ## 10) Learning Workflow
 
-1. Start with small declarations and prints.
+1. Start with declarations, prints, and strings.
 2. Add one condition or loop.
-3. Compile and inspect Tokens, Status, TAC, and Errors.
-4. Use AI tools to explain code and errors when enabled.
+3. Define a small function and call it.
+4. Compile and inspect Tokens, Status, TAC, Result, and Errors.
+5. Use AI tools to explain code and errors when enabled.

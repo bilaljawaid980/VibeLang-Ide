@@ -35,6 +35,7 @@
                     </div>
                     <div class="docs-tabs">
                         <button class="docs-tab active" type="button" data-doc="basics">Basics</button>
+                        <button class="docs-tab" type="button" data-doc="functions">Functions</button>
                         <button class="docs-tab" type="button" data-doc="control">Control</button>
                         <button class="docs-tab" type="button" data-doc="ops">Operators</button>
                         <button class="docs-tab" type="button" data-doc="mistakes">Mistakes</button>
@@ -68,6 +69,21 @@ end while;</pre>
                     </article>
 
                     <article class="doc-pane" data-doc-pane="ops">
+
+                    <article class="doc-pane" data-doc-pane="functions">
+                        <p class="doc-title">Functions</p>
+                        <ul>
+                            <li>Define reusable blocks with parameters.</li>
+                            <li>Use return to send a value back.</li>
+                            <li>Call functions like normal expressions.</li>
+                        </ul>
+                        <pre>function greet(name) then
+    return "Hello, " + name;
+end function;
+
+print greet("Ali");</pre>
+                        <button class="insert-doc-snippet" type="button" data-snippet="function greet(name) then&#10;    return \"Hello, \" + name;&#10;end function;&#10;&#10;print greet(\"Ali\");">Insert Snippet</button>
+                    </article>
                         <p class="doc-title">Supported Operators</p>
                         <ul>
                             <li>Math: +, -, *, /</li>
@@ -76,6 +92,7 @@ end while;</pre>
                             <li>Compare: is less than or equal to</li>
                         </ul>
                         <pre>declare variable total;
+                            <li>Strings: concatenate with +</li>
 total = 10 + 5 * 2;
 print total;</pre>
                         <button class="insert-doc-snippet" type="button" data-snippet="declare variable total;&#10;total = 10 + 5 * 2;&#10;print total;">Insert Snippet</button>
@@ -87,6 +104,7 @@ print total;</pre>
                             <li>Missing semicolon at line end.</li>
                             <li>Using undeclared variable.</li>
                             <li>Forgetting end if; or end while;</li>
+                            <li>Forgetting end function; or return value.</li>
                             <li>Invalid English comparison phrase.</li>
                         </ul>
                         <p class="doc-tip">Tip: Run code and inspect Errors tab in Terminal for exact line and hint.</p>

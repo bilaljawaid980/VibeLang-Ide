@@ -29,6 +29,13 @@ class ProgramNode(Node):
 
 
 @dataclass
+class FunctionDefNode(Node):
+    name: str
+    params: list[str] = field(default_factory=list)
+    body: list[Node] = field(default_factory=list)
+
+
+@dataclass
 class DeclarationNode(Node):
     name: str
     value: Optional[Node] = None
@@ -43,6 +50,11 @@ class AssignmentNode(Node):
 @dataclass
 class PrintNode(Node):
     value: Node
+
+
+@dataclass
+class ReturnNode(Node):
+    value: Optional[Node] = None
 
 
 @dataclass
@@ -78,6 +90,12 @@ class StringNode(Node):
 @dataclass
 class IdentifierNode(Node):
     name: str
+
+
+@dataclass
+class CallNode(Node):
+    name: str
+    args: list[Node] = field(default_factory=list)
 
 
 @dataclass

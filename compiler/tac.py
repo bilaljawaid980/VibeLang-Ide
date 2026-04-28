@@ -3,13 +3,16 @@ from __future__ import annotations
 from .ast_nodes import (
     AssignmentNode,
     BinaryOpNode,
+    CallNode,
     ConditionNode,
     DeclarationNode,
+    FunctionDefNode,
     IdentifierNode,
     IfNode,
     NumberNode,
     PrintNode,
     ProgramNode,
+    ReturnNode,
     StringNode,
     WhileNode,
 )
@@ -35,6 +38,12 @@ class TACGenerator:
             raise ValueError(f"No TAC emitter for {node.__class__.__name__}")
         method(node)
 
+    def emit_FunctionDefNode(self, node: FunctionDefNode):
+        self.instructions.append(f"function {node.name}({', '.join(node.params)}):")
+        for statement in node.body:
+            self.emit_statement(statement)
+        self.instructions.append(f"end function {node.name}")
+
     def emit_DeclarationNode(self, node: DeclarationNode):
         if node.value is not None:
             value = self.emit_expression(node.value)
@@ -47,6 +56,13 @@ class TACGenerator:
     def emit_PrintNode(self, node: PrintNode):
         value = self.emit_expression(node.value)
         self.instructions.append(f"print {value}")
+
+    def emit_ReturnNode(self, node: ReturnNode):
+        if node.value is None:
+            self.instructions.append("return")
+            return
+        value = self.emit_expression(node.value)
+        self.instructions.append(f"return {value}")
 
     def emit_IfNode(self, node: IfNode):
         else_label = self.new_label()
@@ -82,6 +98,11 @@ class TACGenerator:
             return f"\"{node.value}\""
         if isinstance(node, IdentifierNode):
             return node.name
+        if isinstance(node, CallNode):
+            args = ", ".join(self.emit_expression(arg) for arg in node.args)
+            temp = self.new_temp()
+            self.instructions.append(f"{temp} = call {node.name}({args})")
+            return temp
         if isinstance(node, BinaryOpNode):
             left = self.emit_expression(node.left)
             right = self.emit_expression(node.right)

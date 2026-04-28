@@ -5,11 +5,14 @@ from .ast_nodes import (
     BinaryOpNode,
     ConditionNode,
     DeclarationNode,
+    FunctionDefNode,
+    CallNode,
     IdentifierNode,
     IfNode,
     NumberNode,
     PrintNode,
     ProgramNode,
+    ReturnNode,
     StringNode,
     WhileNode,
 )
@@ -38,10 +41,14 @@ class Parser:
         token_type = self.current().type
         if token_type == "DECLARE":
             return self.parse_declaration()
+        if token_type == "FUNCTION":
+            return self.parse_function_def()
         if token_type == "ID":
             return self.parse_assignment()
         if token_type == "PRINT":
             return self.parse_print()
+        if token_type == "RETURN":
+            return self.parse_return()
         if token_type == "IF":
             return self.parse_if()
         if token_type == "WHILE":
@@ -51,8 +58,27 @@ class Parser:
             f"Unexpected token '{token.value or token.type}'.",
             token.line,
             token.column,
-            "Start the line with declare, print, if, while, or an identifier assignment.",
+            "Start the line with declare, function, print, return, if, while, or an identifier assignment.",
         )
+
+    def parse_function_def(self) -> FunctionDefNode:
+        start = self.expect("FUNCTION")
+        identifier = self.expect("ID", "Expected function name after 'function'.", "Add a valid function name.")
+        self.expect("LPAREN", "Expected '(' after function name.", "Add parameter list parentheses.")
+        params = []
+        if self.current().type != "RPAREN":
+            while True:
+                param = self.expect("ID", "Expected parameter name.", "Use a valid identifier for each parameter.")
+                params.append(param.value)
+                if not self.match("COMMA"):
+                    break
+        self.expect("RPAREN", "Expected ')' after parameter list.", "Close the parameter list with ')'.")
+        self.expect("THEN", "Expected 'then' after function signature.", "Add 'then' before the function body.")
+        body = self.parse_statement_list(stop_tokens={"END"})
+        self.expect("END", "Expected 'end' to close function block.", "Close the block with 'end function;'.")
+        self.expect("FUNCTION", "Expected 'function' after 'end'.", "Close the block with 'end function;'.")
+        self.expect("SEMICOLON", "Expected ';' after 'end function'.", "Close the block with 'end function;'.")
+        return FunctionDefNode(line=start.line, column=start.column, name=identifier.value, params=params, body=body)
 
     def parse_declaration(self) -> DeclarationNode:
         start = self.expect("DECLARE")
@@ -76,6 +102,15 @@ class Parser:
         value = self.parse_expression()
         self.expect("SEMICOLON", "Expected ';' after print statement.", "Add ';' at the end of the print statement.")
         return PrintNode(line=start.line, column=start.column, value=value)
+
+    def parse_return(self) -> ReturnNode:
+        start = self.expect("RETURN")
+        if self.current().type == "SEMICOLON":
+            self.advance()
+            return ReturnNode(line=start.line, column=start.column, value=None)
+        value = self.parse_expression()
+        self.expect("SEMICOLON", "Expected ';' after return statement.", "Add ';' at the end of the return statement.")
+        return ReturnNode(line=start.line, column=start.column, value=value)
 
     def parse_if(self) -> IfNode:
         start = self.expect("IF")
@@ -161,6 +196,8 @@ class Parser:
             self.advance()
             return StringNode(line=token.line, column=token.column, value=token.value)
         if token.type == "ID":
+            if self.peek().type == "LPAREN":
+                return self.parse_call()
             self.advance()
             return IdentifierNode(line=token.line, column=token.column, name=token.value)
         if token.type == "LPAREN":
@@ -175,8 +212,25 @@ class Parser:
             "Use a number, string, identifier, or parenthesized expression here.",
         )
 
+    def parse_call(self) -> CallNode:
+        identifier = self.expect("ID")
+        self.expect("LPAREN")
+        args = []
+        if self.current().type != "RPAREN":
+            while True:
+                args.append(self.parse_expression())
+                if not self.match("COMMA"):
+                    break
+        self.expect("RPAREN", "Expected ')' after function arguments.", "Close the call with ')'.")
+        return CallNode(line=identifier.line, column=identifier.column, name=identifier.value, args=args)
+
     def current(self) -> Token:
         return self.tokens[self.position]
+
+    def peek(self) -> Token:
+        if self.position + 1 < len(self.tokens):
+            return self.tokens[self.position + 1]
+        return self.tokens[-1]
 
     def advance(self) -> Token:
         token = self.tokens[self.position]

@@ -9,6 +9,7 @@ from .errors import LexicalError
 KEYWORDS = {
     "declare": "DECLARE",
     "variable": "VARIABLE",
+    "function": "FUNCTION",
     "if": "IF",
     "then": "THEN",
     "else": "ELSE",
@@ -16,6 +17,7 @@ KEYWORDS = {
     "while": "WHILE",
     "do": "DO",
     "print": "PRINT",
+    "return": "RETURN",
     "is": "IS",
     "less": "LESS",
     "greater": "GREATER",
@@ -33,6 +35,7 @@ SINGLE_CHAR_TOKENS = {
     "*": "TIMES",
     "/": "DIVIDE",
     ";": "SEMICOLON",
+    ",": "COMMA",
     "(": "LPAREN",
     ")": "RPAREN",
 }
