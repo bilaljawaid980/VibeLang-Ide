@@ -94,4 +94,4 @@ def suggest_fix_route():
 if __name__ == "__main__":
     debug = os.getenv("FLASK_ENV", "development").lower() == "development"
     port = int(os.getenv("PORT", "5000"))
-    app.run(host="127.0.0.1", port=port, debug=debug)
+    app.run(host="0.0.0.0", port=5000, debug=True)
