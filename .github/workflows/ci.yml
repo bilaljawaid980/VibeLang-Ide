@@ -6,20 +6,22 @@ on:
       - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.11
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
 
-      - name: Install Dependencies
-        run: pip install -r requirements.txt
+    - name: Install Dependencies
+      run: |
+        pip install -r requirements.txt
 
-      - name: Run App Test
-        run: python -m py_compile app.py
+    - name: Run Tests
+      run: |
+        pytest
