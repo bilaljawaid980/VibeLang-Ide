@@ -5,10 +5,10 @@ services:
     plan: free
     autoDeploy: true
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
-        value: 3.13.1
+        value: 3.11
       - key: FLASK_ENV
         value: production
       - key: AI_GATEWAY_BASE_URL

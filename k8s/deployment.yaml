@@ -1,11 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
-
 metadata:
   name: vibelang-app
 
 spec:
-  replicas: 2
+  replicas: 1
 
   selector:
     matchLabels:
@@ -18,7 +17,11 @@ spec:
 
     spec:
       containers:
-        - name: vibelang-container
-          image: vibelang-app
+        - name: vibelang
+          image: vibelang-app:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "5000"
           ports:
             - containerPort: 5000

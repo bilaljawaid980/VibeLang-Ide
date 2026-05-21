@@ -1,8 +1,7 @@
-terraform {
-  required_version = ">= 1.0.0"
+provider "aws" {
+  region = "us-east-1"
 }
 
-resource "local_file" "devops" {
-  filename = "devops.txt"
-  content  = "Terraform Configured Successfully"
+resource "aws_s3_bucket" "demo_bucket" {
+  bucket = "vibelang-demo-bucket-hassan"
 }
